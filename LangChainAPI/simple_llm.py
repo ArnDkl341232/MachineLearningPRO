@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage
 
 # Завантажуємо змінні середовища з .env
 load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
 
 # Обійти помилку, коли немає ключа та продовжити виконання коду
 # try:
