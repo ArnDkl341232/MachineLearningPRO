@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 
 from langchain_openai import ChatOpenAI
 from openai import api_key, models
-from langchain.schema import HumanMessage
+from langchain_core.messages import HumanMessage
 
+# Завантажуємо змінні середовища з .env
 load_dotenv()
 
 # Обійти помилку, коли немає ключа та продовжити виконання коду
@@ -18,4 +19,14 @@ load_dotenv()
 if not api_key:
     raise ValueError("Немає ключа OPEN_API_KEY у .env!")
 
-llm = ChatOpenAI(model="",temperature= 0.7)
+# Створюємо LLM-об'єкт
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+# Готуємо повідомлення від людини (HumanMessage) - формат LangChain
+user_question = "Поясни простими словами: що таке штучний інтелект?"
+
+# Викликаємо модель: передаємо список повідомлень (тут лише одне)
+response = llm.invoke([HumanMessage(content=user_question)])
+
+# Друкуємо чистий текст відповіді
+print("Відповідь LLM:\n", response.content)
