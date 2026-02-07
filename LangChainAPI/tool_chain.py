@@ -2,8 +2,9 @@ import os
 from idlelib.run import Executive
 
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain.tools import tool
+from openai import embeddings, vector_stores
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ def safe_calculate(expression: str) -> str:
 #------------------------------------
 #Декоратор
 #
-# def func():
+# def func():lan
 #     pass
 #
 # func = decorator_name(func)
@@ -38,3 +39,18 @@ def safe_calculate(expression: str) -> str:
 #     n = "qwerty" # func() -> "qwerty"
 #
 # -------------------------------------
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+
+with open("data/faq.txt", "r", encoding="utf-8") as f:
+    faq_text = f.read()
+splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)
+docs = splitter.create_documents([faq_text])
+
+embeddings = OpenAIEmbeddings()
+vector_store = FAISS(
+    embedding_function=embeddings,
+    index=index,
+    docstore=InMemoryDocstore(),
+    index_to_docstore_id={},
+)
