@@ -1,0 +1,10 @@
+
+
+Question: питання
+Thought: подумати, що треба зробити
+Action: дія для виконня, ожна з tool_names
+Action Input: вхідні дані
+Observation: результат дії
+..... Thought -> Action -> Action Input -> Observation(може повторюватися)
+Thought: знає відповідь
+Final Answer: Фінальна відповідь

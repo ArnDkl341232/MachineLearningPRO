@@ -54,3 +54,44 @@ vector_store = FAISS(
     docstore=InMemoryDocstore(),
     index_to_docstore_id={},
 )
+
+vector_store = FAISS.from_documents(docs, embeddings)
+
+@tool
+def search_faq(query: str) -> str:
+    try:
+        # result = vector_store.search(query)
+        result = vector_store.similarity_search(query, k=1)
+        if not result:
+            return "Нічього не знайдено в FAQ"
+        return result[0].page_content
+
+
+    except Exception as e:
+        return f"Error search: {e}"
+
+
+@tool
+def weather_api(city: str) -> str:
+    data = {
+        "Kharkiv": "Сонячно, 0..+2°C,вітряно",
+        "Kyiv": "Хмарно, -1..+1°C",
+        "Kyiv": "Дощ, +2..+3°C",
+    }
+    return data.get(
+        city,
+        f"Немає даний для введеного міста, спробуйте: {', '.join(list(data.keys()))}" )
+
+
+#створення агента
+from langchain.agents import create_agent
+
+
+tools = ["calculator",search_faq]
+# If desired, specify custom instructions
+prompt = (
+    "You have access to a tool that retrieves context from a blog post. "
+    "Use the tool to help answer user queries."
+)
+# agent = create_agent(model, tools, system_prompt=prompt)
+agent = create_agent(llm, tools, system_prompt=prompt)
