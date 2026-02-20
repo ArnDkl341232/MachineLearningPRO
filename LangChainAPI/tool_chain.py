@@ -88,10 +88,12 @@ from langchain.agents import create_agent
 
 
 tools = ["calculator",search_faq]
-# If desired, specify custom instructions
+
+#system prompt(If desired, specify custom instructions)
 prompt = (
     "You have access to a tool that retrieves context from a blog post. "
     "Use the tool to help answer user queries."
+    "Give straight answers to the questions without emojis"
 )
 # agent = create_agent(model, tools, system_prompt=prompt)
 agent = create_agent(llm, tools, system_prompt=prompt)
