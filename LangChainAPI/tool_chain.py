@@ -12,7 +12,7 @@ from openai import embeddings, vector_stores
 load_dotenv()
 
 # Створюємо LLM-об'єкт
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
 @tool(
     "calculator",
@@ -124,11 +124,9 @@ def get_output(result: dict) -> str:
                 return "".join(
                     c.get("text", str(c)) if isinstance(c, dict) else str(c) for c in content
                 )
-
-
-
-
     return ""
+
+
 
 if __name__ == "__main__":
     print("\n===Калькулятор===")

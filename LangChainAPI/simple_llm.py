@@ -31,3 +31,4 @@ response = llm.invoke([HumanMessage(content=user_question)])
 
 # Друкуємо чистий текст відповіді
 print("Відповідь LLM:\n", response.content)
+
