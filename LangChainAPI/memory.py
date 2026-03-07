@@ -37,7 +37,7 @@ def get_output(result: dict) -> str:
     return ""
 
 
-def chat(user_input: str) -> str:
+def chat(user_input: str, agent = agent) -> str:
     chat_messages.append({"role": "user", "content": user_input})
     result = agent.invoke({"messages": chat_messages})
     chat_messages.clear()
@@ -49,14 +49,33 @@ def chat(user_input: str) -> str:
 # Три повідомлення: введення імені, введення вподобання, запит на згадування
 # Агент має використати контекст з попередніх турів (пам'ять працює)
 def run_demo():
+    print("\n" + "=" * 60)
+    print("  ДЕМО РЕЖИМ   ")
+    print("  Введіть 'exit', 'quit', 'q' або '/вихід' для завершення.")
+    print("=" * 60 + "\n")
     """Запускає фіксований сценарій з трьома повідомленнями."""
     print("Відповідь 1:", chat("Привіт! Мене звати Оксана"))
     print("Відповідь 2:", chat("Запам'ятай, я люблю програмування"))
     print("Відповідь 3:", chat("Нагадай, як мене звати і що мені подобається?"))
 
+    while True:
+        try:
+            user_input = input("Ви: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nДо побачення!")
+            break
+
+        if not user_input:
+            continue
+
+        # Команди виходу
+        if user_input.lower() in ("exit", "quit", "q", "/вихід"):
+            print("До побачення!")
+            break
 
 
-def run_interactive():
+
+def run_interactive(agent = agent):
     """
     Інтерактивний чат у терміналі. Введіть повідомлення — отримаєте відповідь.
     Для виходу: exit, quit, q або /вихід
@@ -81,23 +100,34 @@ def run_interactive():
             print("До побачення!")
             break
 
-        response = chat(user_input)
+        response = chat(user_input, agent = agent)
         print(f"Бот: {response}\n")
 
 
 if __name__ == "__main__":
     if "-i" in sys.argv or "--interactive" in sys.argv:
         run_interactive()
-    else:
+    if "-d" in sys.argv or "--demo" in sys.argv:
         run_demo()
-        print("\n" + "-" * 40)
-        try:
-            choice = input("Перейти в інтерактивний режим? (y/n): ").strip().lower()
-            if choice in ("y","yes","так","т"):
-                run_interactive()
-        except(EOFError, KeyboardInterrupt):
-            pass
 
+    # else:
+    #     run_demo()
+    #     print("\n" + "-" * 40)
+    #     try:
+    #         choice = input("Перейти в інтерактивний режим? (y/n): ").strip().lower()
+    #         if choice in ("y","yes","так","т"):
+    #             run_interactive()
+    #     except(EOFError, KeyboardInterrupt):
+    #         pass
+
+    # try:
+    #     choice = input("Перейти в інтерактивний режим? (y/n): ").strip().lower()
+    #     if choice in ("y","yes","так","т"):
+    #         run_interactive()
+    #     else:
+    #         run_demo()
+    # except(EOFError, KeyboardInterrupt):
+    #     pass
 
 
 
