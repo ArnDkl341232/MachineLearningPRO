@@ -1,5 +1,6 @@
 import os
-from http.cookiejar import debug
+import sys
+from random import choice
 
 from dotenv import  load_dotenv
 from langchain_classic.chains.qa_generation.prompt import templ
@@ -11,6 +12,7 @@ from tool_chain import agent
 load_dotenv()
 
 llm = ChatOpenAI(model="gpt-4o-mini", temperature = 0.7)
+chat_messages = []
 
 agent = create_agent(
     model=llm,
@@ -18,7 +20,8 @@ agent = create_agent(
     system_prompt="Ти дружній агент, що відповідає просто і корисно",
     debug=False
 )
-
+#Витягує текст останньої відповіді AI з result["messages"]
+#Ітеруємо reversed(), бо фінальна відповідь - зазвичай останній AIMessage без tool_calls
 def get_output(result: dict) -> str:
     messages = result.get("messages", [])
     for msg in reversed(messages):
@@ -33,7 +36,7 @@ def get_output(result: dict) -> str:
              )
     return ""
 
-chat_messages = []
+
 def chat(user_input: str) -> str:
     chat_messages.append({"role": "user", "content": user_input})
     result = agent.invoke({"messages": chat_messages})
@@ -42,20 +45,58 @@ def chat(user_input: str) -> str:
 
     return get_output(result)
 
+
+# Три повідомлення: введення імені, введення вподобання, запит на згадування
+# Агент має використати контекст з попередніх турів (пам'ять працює)
 def run_demo():
+    """Запускає фіксований сценарій з трьома повідомленнями."""
     print("Відповідь 1:", chat("Привіт! Мене звати Оксана"))
     print("Відповідь 2:", chat("Запам'ятай, я люблю програмування"))
     print("Відповідь 3:", chat("Нагадай, як мене звати і що мені подобається?"))
 
+
+
+def run_interactive():
+    """
+    Інтерактивний чат у терміналі. Введіть повідомлення — отримаєте відповідь.
+    Для виходу: exit, quit, q або /вихід
+    """
+    print("\n" + "=" * 60)
+    print("  ІНТЕРАКТИВНИЙ РЕЖИМ - чат з агентом (пам'ять увімкнена)")
+    print("  Введіть 'exit', 'quit', 'q' або '/вихід' для завершення.")
+    print("=" * 60 + "\n")
+
+    while True:
+        try:
+            user_input = input("Ви: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nДо побачення!")
+            break
+
+        if not user_input:
+            continue
+
+        # Команди виходу
+        if user_input.lower() in ("exit", "quit", "q", "/вихід"):
+            print("До побачення!")
+            break
+
+        response = chat(user_input)
+        print(f"Бот: {response}\n")
+
+
 if __name__ == "__main__":
-    run_demo()
-
-
-
-
-
-
-
+    if "-i" in sys.argv or "--interactive" in sys.argv:
+        run_interactive()
+    else:
+        run_demo()
+        print("\n" + "-" * 40)
+        try:
+            choice = input("Перейти в інтерактивний режим? (y/n): ").strip().lower()
+            if choice in ("y","yes","так","т"):
+                run_interactive()
+        except(EOFError, KeyboardInterrupt):
+            pass
 
 
 
