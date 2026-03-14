@@ -12,6 +12,13 @@ prompt = (
     "Спершу зрозумій запит, потім виріши, який інструмент доречний."
 )
 
+
+def select_model(state, runtime):
+    if len(state.messages) < 5:
+        return llm(model="gpt-4o-mini", temperature=0.7)
+    else:
+        return llm(model="gpt-4o-mini", temperature=0.3)
+
 agent = create_agent(
     model=llm,
     tools=tools,
@@ -21,3 +28,4 @@ agent = create_agent(
 
 
 run_interactive(agent=agent)
+
