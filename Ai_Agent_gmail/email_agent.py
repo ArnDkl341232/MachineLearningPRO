@@ -11,11 +11,16 @@ from dotenv import load_dotenv
 from pyasn1.codec.ber.decoder import decode
 from pydantic_core.core_schema import is_instance_schema
 
+from LangChainAPI.simple_llm import response
+from LangChainAPI.tool_chain import prompt
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
 GMAIL_API_PASSWORD = os.getenv("GMAIL_API_PASSWORD")
 
 client = genai.Client(api_key="GEMINI_API_KEY")
+
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 def connect_to_gmail():
     try:
@@ -68,6 +73,7 @@ def get_email_body(msg):
 
 
 
+
 def get_emails(mail, max_emails=5):
     try:
         mail.select("INBOX") # "SPAM"
@@ -92,7 +98,7 @@ def get_emails(mail, max_emails=5):
 
                     emails.append({
                         "subject": subject,
-                        "sender": sender,
+                        "from": sender,
                         "date": date,
                         "body": body[:500]
                     })
@@ -101,8 +107,43 @@ def get_emails(mail, max_emails=5):
         print(f"Error fetching emails: {e}")
         return []
 
-def analyze_emails_with_ai():
-    pass
+def analyze_emails_with_ai(emails: list):
+    if not emails:
+        print("Листів немає")
+        return
+
+    print(f"\nЗнайдено {len(emails)} листів. Аналізую ...")
+
+    for i, email_data in enumerate(emails, 1):
+        print(f"{'='* 70}") # ========
+        print(f"Лист №{i}") # Лист №1
+        print(f"{'-' * 30}") # ---------
+        print(f"Від: {email_data['from']}")
+        print(f"Тема: {email_data['subject']}") # Тема
+        print(f"Дата {email_data['date']}") # Дата
+        print(f"\nПочаток тексту:\n{email_data['body'][:200]}...")
+
+        prompt = f"""
+        Проаналізуй цей лист і надай коротку відповідь українською мовою
+        
+        Від: {email_data['from']}
+        Тема: {email_data['subject']}
+        Текст: {email_data['date']}
+        
+        Скажи:
+        1. Про що цей лист (1 речення)
+        2. Чи потрібна дія від мене? (так/ні і що саме)
+        3. Наскільки важливий (пріорітет низький/середній/високий)
+        """
+
+        try:
+            response = model.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            print(f"\nAnalys AI:\n{response.text}")
+        except:
+            print("ERROR")
 
 def main():
     mail = connect_to_gmail()
@@ -115,7 +156,9 @@ def main():
     mail.close()
     mail.logout()
 
-    print(emails)
+    # print(emails)
+    analyze_emails_with_ai(emails)
+    print("Готово")
 
 if __name__ == '__main__':
     main()
