@@ -1,18 +1,11 @@
 import imaplib
 import email
 from email.header import decode_header
-from idlelib.iomenu import errors
-from sre_constants import error
-
 from google import genai
 
 import os
 from dotenv import load_dotenv
-from pyasn1.codec.ber.decoder import decode
-from pydantic_core.core_schema import is_instance_schema
-
-from LangChainAPI.simple_llm import response
-from LangChainAPI.tool_chain import prompt
+load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
@@ -20,7 +13,7 @@ GMAIL_API_PASSWORD = os.getenv("GMAIL_API_PASSWORD")
 
 client = genai.Client(api_key="GEMINI_API_KEY")
 
-model = genai.GenerativeModel('gemini-2.5-flash')
+# model = genai.GenerativeModel('gemini-2.5-flash')
 
 def connect_to_gmail():
     try:
@@ -60,7 +53,7 @@ def get_email_body(msg):
             content_type = part.get_content_type()
             if content_type == "text/plain":
                 try:
-                    body = msg.get_payload(decode= True).decode("utf-8", errors="ignore")
+                    body = part.get_payload(decode= True).decode("utf-8", errors="ignore")
                     break
                 except:
                     body = "Can't decode part"
@@ -71,13 +64,14 @@ def get_email_body(msg):
         except:
             body = "Can't decode "
 
+    return  body
 
 
 
 def get_emails(mail, max_emails=5):
     try:
         mail.select("INBOX") # "SPAM"
-        status, messages = mail.search(None, "all")  # "SEEN" , "UNSEEN"
+        status, messages = mail.search(None, "ALL")  # "SEEN" , "UNSEEN"
         email_ids = messages[0].split()
         email_ids = email_ids[-max_emails:]
         #Ex. 100 -> emails_ids = [96, 97, 98, 99, 100]
@@ -137,7 +131,7 @@ def analyze_emails_with_ai(emails: list):
         """
 
         try:
-            response = model.generate_content(
+            response = client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt
             )
