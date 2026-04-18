@@ -133,11 +133,12 @@ def analyze_emails_with_ai(emails: list):
         try:
             response = client.models.generate_content(
                 model='gemini-2.5-flash',
-                contents=prompt
+                contents= prompt
             )
             print(f"\nAnalys AI:\n{response.text}")
-        except:
+        except Exception as e :
             print("ERROR")
+            print(e)
 
 def main():
     mail = connect_to_gmail()
