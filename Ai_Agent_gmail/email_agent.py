@@ -9,16 +9,16 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
-GMAIL_API_PASSWORD = os.getenv("GMAIL_API_PASSWORD")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 
-client = genai.Client(api_key="GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # model = genai.GenerativeModel('gemini-2.5-flash')
 
 def connect_to_gmail():
     try:
         mail = imaplib.IMAP4_SSL('imap.gmail.com')
-        mail.login(GMAIL_EMAIL, GMAIL_API_PASSWORD)
+        mail.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
         print("Connected to Gmail")
         return mail
     except Exception as e:
@@ -63,7 +63,8 @@ def get_email_body(msg):
             body = msg.get_payload(decode= True).decode("utf-8", errors="ignore")
         except:
             body = "Can't decode "
-
+    if not body:
+        body = "No text in body"
     return  body
 
 
